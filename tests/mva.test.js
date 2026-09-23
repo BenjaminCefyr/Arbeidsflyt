@@ -37,3 +37,7 @@ test("beregner fra brutto: netto + mva er alltid lik brutto", () => {
 test("beregner fra brutto: avviser negative beløp", () => {
   assert.throws(() => beregnFraBrutto(-5, SATSER.lav), { message: "Ugyldig beløp" });
 });
+
+test("12 % av 250 gir 30 i mva", () => {
+  assert.deepEqual(beregnMva(250, SATSER.lav), { netto: 250, mva: 30, brutto: 280 });
+});
