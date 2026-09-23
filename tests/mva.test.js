@@ -10,6 +10,10 @@ test("15 % av 200", () => {
   assert.deepEqual(beregnMva(200, SATSER.mat), { netto: 200, mva: 30, brutto: 230 });
 });
 
+test("fritatt gir 0 i mva", () => {
+  assert.deepEqual(beregnMva(100, SATSER.fritatt), { netto: 100, mva: 0, brutto: 100 });
+});
+
 test("avrunder til øre", () => {
   // 12 % av 10,05 = 1,206 -> 1,21
   assert.deepEqual(beregnMva(10.05, SATSER.lav), { netto: 10.05, mva: 1.21, brutto: 11.26 });
