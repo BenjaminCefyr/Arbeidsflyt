@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { SATSER, beregnMva } from "../src/mva.js";
+import { SATSER, beregnMva, beregnFraBrutto } from "../src/mva.js";
 
 test("25 % av 100", () => {
   assert.deepEqual(beregnMva(100, SATSER.standard), { netto: 100, mva: 25, brutto: 125 });
@@ -25,4 +25,23 @@ test("avviser negative og ugyldige beløp", () => {
   assert.throws(() => beregnMva(-1, SATSER.standard), { message: "Ugyldig beløp" });
   assert.throws(() => beregnMva(NaN, SATSER.standard), { message: "Ugyldig beløp" });
   assert.throws(() => beregnMva("100", SATSER.standard), { message: "Ugyldig beløp" });
+});
+
+test("beregner fra brutto: 125 inkl. 25 % gir 100 netto", () => {
+  assert.deepEqual(beregnFraBrutto(125, SATSER.standard), { netto: 100, mva: 25, brutto: 125 });
+});
+
+test("beregner fra brutto: netto + mva er alltid lik brutto", () => {
+  // 99,99 / 1,15 = 86,947... -> netto 86,95, mva 13,04
+  const r = beregnFraBrutto(99.99, SATSER.mat);
+  assert.deepEqual(r, { netto: 86.95, mva: 13.04, brutto: 99.99 });
+  assert.equal(Math.round((r.netto + r.mva) * 100), Math.round(r.brutto * 100));
+});
+
+test("beregner fra brutto: avviser negative beløp", () => {
+  assert.throws(() => beregnFraBrutto(-5, SATSER.lav), { message: "Ugyldig beløp" });
+});
+
+test("12 % av 250 gir 30 i mva", () => {
+  assert.deepEqual(beregnMva(250, SATSER.lav), { netto: 250, mva: 30, brutto: 280 });
 });

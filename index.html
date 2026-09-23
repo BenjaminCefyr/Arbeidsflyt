@@ -21,7 +21,13 @@
   <h1>CefyrCare · Sandkasse</h1>
 
   <h2>MVA-kalkulator</h2>
-  <label for="belop">Beløp eks. mva (kr)</label>
+  <label for="retning">Beløpet er</label>
+  <select id="retning">
+    <option value="eks">Eks. mva</option>
+    <option value="inkl">Inkl. mva</option>
+  </select>
+
+  <label for="belop" id="belop-label">Beløp eks. mva (kr)</label>
   <input id="belop" type="number" min="0" step="0.01" value="100">
 
   <label for="sats">Sats</label>
@@ -40,16 +46,19 @@
   <div id="feil"></div>
 
   <script type="module">
-    import { SATSER, beregnMva } from "./src/mva.js";
+    import { SATSER, beregnMva, beregnFraBrutto } from "./src/mva.js";
 
     const kr = new Intl.NumberFormat("nb-NO", { style: "currency", currency: "NOK" });
     const $ = (id) => document.getElementById(id);
 
     function oppdater() {
       const felt = ["netto", "mva", "brutto"];
+      const inkl = $("retning").value === "inkl";
+      $("belop-label").textContent = `Beløp ${inkl ? "inkl." : "eks."} mva (kr)`;
       try {
         const verdi = $("belop").value === "" ? NaN : Number($("belop").value);
-        const resultat = beregnMva(verdi, SATSER[$("sats").value]);
+        const beregn = inkl ? beregnFraBrutto : beregnMva;
+        const resultat = beregn(verdi, SATSER[$("sats").value]);
         felt.forEach((f) => ($(f).textContent = kr.format(resultat[f])));
         $("feil").textContent = "";
       } catch (e) {
@@ -60,6 +69,7 @@
 
     $("belop").addEventListener("input", oppdater);
     $("sats").addEventListener("change", oppdater);
+    $("retning").addEventListener("change", oppdater);
     oppdater();
 
     fetch("./version.json", { cache: "no-store" })
