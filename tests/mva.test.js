@@ -37,3 +37,8 @@ test("beregner fra brutto: netto + mva er alltid lik brutto", () => {
 test("beregner fra brutto: avviser negative beløp", () => {
   assert.throws(() => beregnFraBrutto(-5, SATSER.lav), { message: "Ugyldig beløp" });
 });
+
+// Bevisst feil for å teste at rød CI blokkerer merge. Riktig mva er 25.
+test("TEST AV RØD CI: 25 % av 100 gir 30 i mva", () => {
+  assert.equal(beregnMva(100, SATSER.standard).mva, 30);
+});
