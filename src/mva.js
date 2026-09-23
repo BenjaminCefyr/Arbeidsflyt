@@ -2,6 +2,7 @@ export const SATSER = Object.freeze({
   standard: 0.25,
   mat: 0.15,
   lav: 0.12,
+  fritatt: 0,
 });
 
 const tilOre = (belop) => Math.round((belop + Number.EPSILON) * 100) / 100;
