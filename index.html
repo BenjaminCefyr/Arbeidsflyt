@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="nb">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CefyrCare · Sandkasse</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 32rem; margin: 2rem auto; padding: 0 1rem; color: #1a1a1a; }
+    #versjon { font-size: 0.85rem; color: #666; margin-bottom: 1rem; }
+    label { display: block; margin-top: 1rem; font-weight: 600; }
+    input, select { font-size: 1rem; padding: 0.4rem; width: 100%; box-sizing: border-box; }
+    table { margin-top: 1.5rem; width: 100%; border-collapse: collapse; }
+    td { padding: 0.4rem 0; border-bottom: 1px solid #ddd; }
+    td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+    tr:last-child td { font-weight: 700; }
+    #feil { color: #b00020; margin-top: 1rem; min-height: 1.2em; }
+  </style>
+</head>
+<body>
+  <div id="versjon">Versjon: lokal</div>
+  <h1>CefyrCare · Sandkasse</h1>
+
+  <h2>MVA-kalkulator</h2>
+  <label for="belop">Beløp eks. mva (kr)</label>
+  <input id="belop" type="number" min="0" step="0.01" value="100">
+
+  <label for="sats">Sats</label>
+  <select id="sats">
+    <option value="standard">Standard 25 %</option>
+    <option value="mat">Mat 15 %</option>
+    <option value="lav">Lav 12 %</option>
+  </select>
+
+  <table>
+    <tr><td>Netto</td><td id="netto"></td></tr>
+    <tr><td>MVA</td><td id="mva"></td></tr>
+    <tr><td>Brutto</td><td id="brutto"></td></tr>
+  </table>
+  <div id="feil"></div>
+
+  <script type="module">
+    import { SATSER, beregnMva } from "./src/mva.js";
+
+    const kr = new Intl.NumberFormat("nb-NO", { style: "currency", currency: "NOK" });
+    const $ = (id) => document.getElementById(id);
+
+    function oppdater() {
+      const felt = ["netto", "mva", "brutto"];
+      try {
+        const verdi = $("belop").value === "" ? NaN : Number($("belop").value);
+        const resultat = beregnMva(verdi, SATSER[$("sats").value]);
+        felt.forEach((f) => ($(f).textContent = kr.format(resultat[f])));
+        $("feil").textContent = "";
+      } catch (e) {
+        felt.forEach((f) => ($(f).textContent = "–"));
+        $("feil").textContent = e.message;
+      }
+    }
+
+    $("belop").addEventListener("input", oppdater);
+    $("sats").addEventListener("change", oppdater);
+    oppdater();
+
+    fetch("./version.json", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((v) => {
+        if (v) $("versjon").textContent = `Versjon: ${v.commit} · ${new Date(v.tidspunkt).toLocaleString("nb-NO")}`;
+      })
+      .catch(() => {});
+  </script>
+</body>
+</html>

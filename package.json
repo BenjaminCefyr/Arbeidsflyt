@@ -1,0 +1,10 @@
+{
+  "name": "arbeidsflyt-sandkasse",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "lint": "node --check src/mva.js && node --check tests/mva.test.js"
+  }
+}
